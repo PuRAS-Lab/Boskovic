@@ -10,11 +10,12 @@ import cv2
 
 
 def callback(data):
-    rospy.loginfo(rospy.get_caller_id() + "I heard %s", data.data)
-    # bridge = CvBridge()
-    # cv_image = bridge.imgmsg_to_cv2(data, "bgr8")
-    # cv2.imshow("Image window", cv_image)
-    # cv2.waitKey(3)
+    # rospy.loginfo(rospy.get_caller_id() + "I heard %s", data.data)
+    bridge = CvBridge()
+    cv_image = bridge.imgmsg_to_cv2(data, "bgr8")
+    cv2.imshow("Image window", cv_image)
+    # mora da se stavi neki broj, inače ne osvežava image
+    cv2.waitKey(10)
 
 def listener():
 
@@ -26,7 +27,7 @@ def listener():
     rospy.init_node('listener', anonymous=True)
 
     # u RVIZ pogledajte koji je Source u Image prozoru
-    #rospy.Subscriber("/carla/ego_vehicle/camera/rgb/front/image_color", Image, callback)
+    rospy.Subscriber("/carla/ego_vehicle/camera/rgb/front/image_color", Image, callback)
 
     # spin() simply keeps python from exiting until this node is stopped
     rospy.spin()
