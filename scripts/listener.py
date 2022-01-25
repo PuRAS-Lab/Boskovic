@@ -8,11 +8,15 @@ import cv2
 # pogledajte ovaj primer:
 # http://wiki.ros.org/cv_bridge/Tutorials/ConvertingBetweenROSImagesAndOpenCVImagesPython
 
-
 def callback(data):
     # rospy.loginfo(rospy.get_caller_id() + "I heard %s", data.data)
     bridge = CvBridge()
     cv_image = bridge.imgmsg_to_cv2(data, "bgr8")
+
+    #cv_image postaje grayscale slika koja koristi cv_image kao src za transformaciju
+    cv_image = cv2.cvtColor(cv_image, cv2.COLOR_BGR2GRAY )
+    ##
+    ##
     cv2.imshow("Image window", cv_image)
     # mora da se stavi neki broj, inače ne osvežava image
     cv2.waitKey(10)
