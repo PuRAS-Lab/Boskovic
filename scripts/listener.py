@@ -19,7 +19,10 @@ def callback(data):
     ksize = (3, 3)
     cv_image = cv2.blur(cv_image,ksize )
     
-    cv2.imshow("Image window", cv_image)
+    #Nakon blur-ovanja slike primjenjujemo Canny-jev algoritam
+    edges = cv2.Canny(cv_image, 100, 200)
+    
+    cv2.imshow("Image window", edges)
     # mora da se stavi neki broj, inače ne osvežava image
     cv2.waitKey(10)
 
