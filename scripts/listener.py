@@ -15,8 +15,10 @@ def callback(data):
 
     #cv_image postaje grayscale slika koja koristi cv_image kao src za transformaciju
     cv_image = cv2.cvtColor(cv_image, cv2.COLOR_BGR2GRAY )
-    ##
-    ##
+    #Blurujemo sliku sa 3x3
+    ksize = (3, 3)
+    cv_image = cv2.blur(cv_image,ksize )
+    
     cv2.imshow("Image window", cv_image)
     # mora da se stavi neki broj, inače ne osvežava image
     cv2.waitKey(10)
