@@ -24,7 +24,9 @@ def roi(image, vertices):
     masked = cv2.bitwise_and(image, mask)
     return masked
 
-def callback(data):
+def callback(data, args):
+    tresh1 = args[0]
+    tresh2 = args[1]
     # rospy.loginfo(rospy.get_caller_id() + "I heard %s", data.data)
     bridge = CvBridge()
     cv_image = bridge.imgmsg_to_cv2(data, "bgr8")
@@ -36,7 +38,7 @@ def callback(data):
     cv_image = cv2.blur(cv_image,ksize )
     
     #Nakon blur-ovanja slike primjenjujemo Canny-jev algoritam
-    edges = cv2.Canny(cv_image, 85, 255)
+    edges = cv2.Canny(cv_image, tresh1, tresh2)
     
     #Kreiranje ROI
     vertices = np.array([[0,600],[0,500],[300,300],[450,300],[700,500],[700,600]], np.int32)
@@ -50,7 +52,7 @@ def callback(data):
 
     cv2.imshow("Image window", roi_img)
     # mora da se stavi neki broj, inače ne osvežava image
-    cv2.waitKey(10)
+    cv2.waitKey(1)
 
 def listener():
 
@@ -60,9 +62,11 @@ def listener():
     # name for our 'listener' node so that multiple listeners can
     # run simultaneously.
     rospy.init_node('listener', anonymous=True)
-
+    tresh1 = rospy.get_param("canny_tresh_1", "100")
+    tresh2 = rospy.get_param("canny_tresh_2", "200")
+    
     # u RVIZ pogledajte koji je Source u Image prozoru
-    rospy.Subscriber("/carla/ego_vehicle/camera/rgb/front/image_color", Image, callback)
+    rospy.Subscriber("/carla/ego_vehicle/camera/rgb/front/image_color", Image, callback, (tresh1, tresh2))
 
     # spin() simply keeps python from exiting until this node is stopped
     rospy.spin()
