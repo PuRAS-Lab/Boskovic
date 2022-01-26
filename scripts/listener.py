@@ -4,9 +4,19 @@ from std_msgs.msg import String
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
 import cv2
+import numpy as np
 
 # pogledajte ovaj primer:
 # http://wiki.ros.org/cv_bridge/Tutorials/ConvertingBetweenROSImagesAndOpenCVImagesPython
+
+def roi(image, vertices):
+    #blank mask:
+    mask = np.zeros_like(image)
+    # fill the mask
+    cv2.fillPoly(mask, vertices, 255)
+    # now only show the area that is the mask
+    masked = cv2.bitwise_and(image, mask)
+    return masked
 
 def callback(data):
     # rospy.loginfo(rospy.get_caller_id() + "I heard %s", data.data)
@@ -20,9 +30,12 @@ def callback(data):
     cv_image = cv2.blur(cv_image,ksize )
     
     #Nakon blur-ovanja slike primjenjujemo Canny-jev algoritam
-    edges = cv2.Canny(cv_image, 100, 200)
+    edges = cv2.Canny(cv_image, 85, 255)
     
-    cv2.imshow("Image window", edges)
+    #Kreiranje ROI
+    vertices = np.array([[0,600],[0,500],[300,300],[450,300],[700,500],[700,600]], np.int32)
+    roi_img = roi(edges, [vertices])
+    cv2.imshow("Image window", roi_img)
     # mora da se stavi neki broj, inače ne osvežava image
     cv2.waitKey(10)
 
