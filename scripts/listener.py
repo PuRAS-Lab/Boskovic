@@ -65,10 +65,13 @@ def listener():
     tresh1 = rospy.get_param("canny_tresh_1", "100")
     tresh2 = rospy.get_param("canny_tresh_2", "200")
     # fetch a group (dictionary) of parameters - ROI points
-    roi_points = rospy.get_param('roi_points')
-    x1, y1, x2, y2, x3, y3, x4, y4, x5, y5, x6, y6 = roi_points['x1'], roi_points['y1'], roi_points['x2'], roi_points['y2'], \
-                                                     roi_points['x3'], roi_points['y3'], roi_points['x4'], roi_points['y4'], \
-                                                     roi_points['x5'], roi_points['y5'], roi_points['x6'], roi_points['y6']
+    if rospy.has_param('roi_points'):
+        roi_points = rospy.get_param('roi_points')
+        x1, y1, x2, y2, x3, y3, x4, y4, x5, y5, x6, y6 = roi_points['x1'], roi_points['y1'], roi_points['x2'], roi_points['y2'], \
+                                                         roi_points['x3'], roi_points['y3'], roi_points['x4'], roi_points['y4'], \
+                                                         roi_points['x5'], roi_points['y5'], roi_points['x6'], roi_points['y6']
+    else:
+        x1, y1, x2, y2, x3, y3, x4, y4, x5, y5, x6, y6 = 0, 600, 0, 500, 300, 300, 450, 300, 700, 500, 700, 600
     #rospy.loginfo("coordinates are %s, %s, %s, %s, %s, %s,%s, %s, %s, %s, %s, %s", x1,y1,x2,y2,x3,y3,x4,y4,x5,y5,x6,y6)
     
     # u RVIZ pogledajte koji je Source u Image prozoru
