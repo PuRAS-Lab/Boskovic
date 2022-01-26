@@ -41,7 +41,7 @@ def callback(data, args):
     edges = cv2.Canny(cv_image, tresh1, tresh2)
     
     #Kreiranje ROI
-    vertices = np.array([[0,600],[0,500],[300,300],[450,300],[700,500],[700,600]], np.int32)
+    vertices = np.array([[args[2],args[3]],[args[4],args[5]],[args[6],args[7]],[args[8],args[9]],[args[10],args[11]],[args[12],args[13]]], np.int32)
     roi_img = roi(edges, [vertices])
     
     # NOTE: dve linije ispod, ne zaboraviti promeniti ime varijable (roi_img, ...)
@@ -64,9 +64,15 @@ def listener():
     rospy.init_node('listener', anonymous=True)
     tresh1 = rospy.get_param("canny_tresh_1", "100")
     tresh2 = rospy.get_param("canny_tresh_2", "200")
+    # fetch a group (dictionary) of parameters - ROI points
+    roi_points = rospy.get_param('roi_points')
+    x1, y1, x2, y2, x3, y3, x4, y4, x5, y5, x6, y6 = roi_points['x1'], roi_points['y1'], roi_points['x2'], roi_points['y2'], \
+                                                     roi_points['x3'], roi_points['y3'], roi_points['x4'], roi_points['y4'], \
+                                                     roi_points['x5'], roi_points['y5'], roi_points['x6'], roi_points['y6']
+    #rospy.loginfo("coordinates are %s, %s, %s, %s, %s, %s,%s, %s, %s, %s, %s, %s", x1,y1,x2,y2,x3,y3,x4,y4,x5,y5,x6,y6)
     
     # u RVIZ pogledajte koji je Source u Image prozoru
-    rospy.Subscriber("/carla/ego_vehicle/camera/rgb/front/image_color", Image, callback, (tresh1, tresh2))
+    rospy.Subscriber("/carla/ego_vehicle/camera/rgb/front/image_color", Image, callback, (tresh1, tresh2, x1, y1, x2, y2, x3, y3, x4, y4, x5, y5, x6, y6))
 
     # spin() simply keeps python from exiting until this node is stopped
     rospy.spin()
