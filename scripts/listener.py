@@ -6,6 +6,12 @@ from cv_bridge import CvBridge, CvBridgeError
 import cv2
 import numpy as np
 
+# globals
+image_pub = None
+
+# globals for parametrisation
+publish_topic = "output_image"
+
 # pogledajte ovaj primer:
 # http://wiki.ros.org/cv_bridge/Tutorials/ConvertingBetweenROSImagesAndOpenCVImagesPython
 
@@ -35,6 +41,13 @@ def callback(data):
     #Kreiranje ROI
     vertices = np.array([[0,600],[0,500],[300,300],[450,300],[700,500],[700,600]], np.int32)
     roi_img = roi(edges, [vertices])
+    
+    # NOTE: dve linije ispod, ne zaboraviti promeniti ime varijable (roi_img, ...)
+    try:
+        image_pub.publish(bridge.cv2_to_imgmsg(roi_img, "8UC1"))
+    except CvBridgeError as e:
+        print(e)
+
     cv2.imshow("Image window", roi_img)
     # mora da se stavi neki broj, inače ne osvežava image
     cv2.waitKey(10)
@@ -55,4 +68,6 @@ def listener():
     rospy.spin()
 
 if __name__ == '__main__':
+    image_pub = rospy.Publisher(publish_topic, Image, queue_size=10)
     listener()
+
