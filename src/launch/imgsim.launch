@@ -1,5 +1,7 @@
 <launch>
-
-    <node pkg="Boskovic_LD" type="" name="" />
- 
+  <!-- set Canny parameters -->
+  <param name="canny_tresh_1" value="100" />
+  <param name="canny_tresh_2" value="200" />
+  <node pkg="Boskovic_LD" name="lanedetect" type="listener.py" output="screen"/>
 </launch>
+
