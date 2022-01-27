@@ -24,6 +24,43 @@ def roi(image, vertices):
     masked = cv2.bitwise_and(image, mask)
     return masked
 
+
+def extract_coordinates(image, line_parameters):
+    curve, cut_off = line_parameters
+    y1 = image.shape[0]
+    y2 = int(y1*(3/5))
+    x1 = int((y1 - cut_off)/curve)
+    x2 = int((y2 - cut_off)/curve)
+    return np.array([x1, y1, x2, y2])
+
+
+def drawing_lines(image, lines):
+    line_image = np.zeros_like(image)
+    if lines is not None:
+        for x1, y1, x2, y2 in lines:
+            cv2.line(line_image, (x1, y1), (x2, y2), (255, 0, 0), 8)
+    return line_image   
+
+
+def extrapolation_lines(image, lines):
+    left_fit = []
+    right_fit = []
+    for line in lines:
+        x1, y1, x2, y2 = line.reshape(4)
+        parameters = np.polyfit((x1, x2), (y1, y2), 1)
+        curve = parameters[0]
+        cut_off = parameters[1]
+        if curve < 0:
+            left_fit.append((curve, cut_off))
+        else:
+            right_fit.append((curve, cut_off))
+    left_calibrate = np.average(left_fit, axis=0)
+    right_calibrate = np.average(right_fit, axis=0)
+    left_line = extract_coordinates(image, left_calibrate)
+    right_line = extract_coordinates(image, right_calibrate)
+    return np.array([left_line, right_line])
+      
+
 def callback(data, args):
     tresh1 = args[0]
     tresh2 = args[1]
@@ -56,19 +93,16 @@ def callback(data, args):
     lines = cv2.HoughLinesP(roi_img, rho, theta, threshold, np.array([]),
                     min_line_length, max_line_gap)
 
-    for line in lines:
-        for x1,y1,x2,y2 in line:
-            cv2.line(line_image,(x1,y1),(x2,y2),(0,0,255),3)
-    
-    lines_edges = cv2.addWeighted(raw_image, 0.8, line_image, 1, 0)
-    
+    L = extrapolation_lines(raw_image, lines)
+    l_image = drawing_lines(raw_image, L)
+    final_image = cv2.addWeighted(raw_image, 0.8, l_image, 1, 1)
     # NOTE: dve linije ispod, ne zaboraviti promeniti ime varijable (roi_img, ...)
     try:
-        image_pub.publish(bridge.cv2_to_imgmsg(lines_edges, "8UC3"))
+        image_pub.publish(bridge.cv2_to_imgmsg(final_image, "8UC3"))
     except CvBridgeError as e:
         print(e)
     
-    cv2.imshow("Raw image window", lines_edges)
+    cv2.imshow("Raw image window", final_image)
     # mora da se stavi neki broj, inače ne osvežava image
     cv2.waitKey(1)
 
