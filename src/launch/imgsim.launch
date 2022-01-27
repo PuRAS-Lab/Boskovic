@@ -7,13 +7,13 @@
    <param name="x1" value="0" />
    <param name="y1" value="600" />
    <param name="x2" value="0" />
-   <param name="y2" value="500" />
-   <param name="x3" value="300" />
-   <param name="y3" value="300" />
-   <param name="x4" value="450" />
-   <param name="y4" value="300" />
+   <param name="y2" value="520" />
+   <param name="x3" value="325" />
+   <param name="y3" value="325" />
+   <param name="x4" value="500" />
+   <param name="y4" value="325" />
    <param name="x5" value="700" />
-   <param name="y5" value="500" />
+   <param name="y5" value="520" />
    <param name="x6" value="700" />
    <param name="y6" value="600" />
   </group>
