@@ -11,6 +11,7 @@ image_pub = None
 
 # globals for parametrisation
 publish_topic = None
+subscrite_to_topic = None
 
 # pogledajte ovaj primer:
 # http://wiki.ros.org/cv_bridge/Tutorials/ConvertingBetweenROSImagesAndOpenCVImagesPython
@@ -57,6 +58,7 @@ def callback(data, args):
 def listener():
 
     global image_pub
+    global subscrite_to_topic
 
     # In ROS, nodes are uniquely named. If two nodes with the same
     # name are launched, the previous one is kicked off. The
@@ -77,12 +79,13 @@ def listener():
     #rospy.loginfo("coordinates are %s, %s, %s, %s, %s, %s,%s, %s, %s, %s, %s, %s", x1,y1,x2,y2,x3,y3,x4,y4,x5,y5,x6,y6)
     
     publish_topic = rospy.get_param("publish_image_topic", "lane_detection")
+    subscrite_to_topic = rospy.get_param("subscribe_image_topic", "/carla/ego_vehicle/camera/rgb/front/image_color")
 
     # publish the image    
     image_pub = rospy.Publisher(publish_topic, Image, queue_size=10)
     
     # u RVIZ pogledajte koji je Source u Image prozoru
-    rospy.Subscriber("/carla/ego_vehicle/camera/rgb/front/image_color", Image, callback, (tresh1, tresh2, x1, y1, x2, y2, x3, y3, x4, y4, x5, y5, x6, y6, ))
+    rospy.Subscriber(subscrite_to_topic, Image, callback, (tresh1, tresh2, x1, y1, x2, y2, x3, y3, x4, y4, x5, y5, x6, y6, ))
 
     # spin() simply keeps python from exiting until this node is stopped
     rospy.spin()
