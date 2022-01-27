@@ -17,6 +17,9 @@
    <param name="x6" value="700" />
    <param name="y6" value="600" />
   </group>
+  <param name="publish_image_topic" value="lane_detection" />
+  <param name="subscribe_image_topic" value="/carla/ego_vehicle/camera/rgb/front/image_color" />
+  
   <node pkg="Boskovic_LD" name="lanedetect" type="listener.py" output="screen"/>
 </launch>
 
