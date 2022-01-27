@@ -78,6 +78,7 @@ def callback(data, args):
     # rospy.loginfo(rospy.get_caller_id() + "I heard %s", data.data)
     bridge = CvBridge()
     cv_image = bridge.imgmsg_to_cv2(data, "bgr8")
+    orig_image = cv_image
     raw_image = bridge.imgmsg_to_cv2(data, "bgr8")
     #cv_image postaje grayscale slika koja koristi cv_image kao src za transformaciju
     cv_image = cv2.cvtColor(cv_image, cv2.COLOR_BGR2GRAY )
@@ -104,9 +105,13 @@ def callback(data, args):
     lines = cv2.HoughLinesP(roi_img, rho, theta, hough_threshold, np.array([]),
                     min_line_length, max_line_gap)
 
-    L = extrapolation_lines(raw_image, lines)
-    l_image = drawing_lines(raw_image, L)
-    final_image = cv2.addWeighted(raw_image, 0.8, l_image, 1, 1)
+    final_image = orig_image
+    try:
+        L = extrapolation_lines(raw_image, lines)
+        l_image = drawing_lines(raw_image, L)
+        final_image = cv2.addWeighted(raw_image, 0.8, l_image, 1, 1)
+    except:
+        pass
     # NOTE: dve linije ispod, ne zaboraviti promeniti ime varijable (roi_img, ...)
     try:
         image_pub.publish(bridge.cv2_to_imgmsg(final_image, "8UC3"))
