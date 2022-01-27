@@ -30,7 +30,7 @@ def callback(data, args):
     # rospy.loginfo(rospy.get_caller_id() + "I heard %s", data.data)
     bridge = CvBridge()
     cv_image = bridge.imgmsg_to_cv2(data, "bgr8")
-
+    raw_image = bridge.imgmsg_to_cv2(data, "bgr8")
     #cv_image postaje grayscale slika koja koristi cv_image kao src za transformaciju
     cv_image = cv2.cvtColor(cv_image, cv2.COLOR_BGR2GRAY )
     #Blurujemo sliku sa 3x3
@@ -43,15 +43,14 @@ def callback(data, args):
     #Kreiranje ROI
     vertices = np.array([[args[2],args[3]],[args[4],args[5]],[args[6],args[7]],[args[8],args[9]],[args[10],args[11]],[args[12],args[13]]], np.int32)
     roi_img = roi(edges, [vertices])
-    
-    rho = 2  # distance resolution in pixels of the Hough grid
+
+    rho = 1  # distance resolution in pixels of the Hough grid
     theta = np.pi / 180  # angular resolution in radians of the Hough grid
     threshold = 100  # minimum number of votes (intersections in Hough grid cell)
     min_line_length = 40  # minimum number of pixels making up a line
     max_line_gap = 10  # maximum gap in pixels between connectable line segments
-    line_image = np.zeros([cv_image.shape[0], cv_image.shape[1], 1], dtype=np.uint8)   # creating a blank to draw lines on
-    line_image.fill(255)
-    
+    line_image = np.copy(raw_image) * 0  # creating a blank to draw lines on
+
     # Run Hough on edge detected image
     # Output "lines" is an array containing endpoints of detected line segments
     lines = cv2.HoughLinesP(roi_img, rho, theta, threshold, np.array([]),
@@ -61,15 +60,15 @@ def callback(data, args):
         for x1,y1,x2,y2 in line:
             cv2.line(line_image,(x1,y1),(x2,y2),(0,0,255),3)
     
-    lines_edges = cv2.addWeighted(cv_image, 0.8, line_image, 1, 0)
-
+    lines_edges = cv2.addWeighted(raw_image, 0.8, line_image, 1, 0)
+    
     # NOTE: dve linije ispod, ne zaboraviti promeniti ime varijable (roi_img, ...)
     try:
-        image_pub.publish(bridge.cv2_to_imgmsg(lines_edges, "8UC1"))
+        image_pub.publish(bridge.cv2_to_imgmsg(lines_edges, "8UC3"))
     except CvBridgeError as e:
         print(e)
-
-    cv2.imshow("Image window", cv2.bitwise_not(lines_edges))
+    
+    cv2.imshow("Raw image window", lines_edges)
     # mora da se stavi neki broj, inače ne osvežava image
     cv2.waitKey(1)
 
