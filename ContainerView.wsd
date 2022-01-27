@@ -1,0 +1,32 @@
+@startuml C4 Container
+title Lane Detection Container view
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+!define DEVICONS https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/devicons
+!define ICONURL https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/v2.4.0
+!theme crt-green
+
+System(monitorAlias, "MONITORING", ""){
+
+Container(camera,"Camera","raw-image")
+}
+note right
+  realistic simulation of vehicle movement via CARLA simulation
+end note
+
+System(processAlias, "Digital processing", ""){
+
+Container(imgpr,"Image processing","DSP Algorithms")
+}
+Rel_D(camera,processAlias,"Data transfer","raw-image")
+
+System(visAlias, "Applied image processing", ""){
+
+Container(vis,"Lane drawing on original camera","vehicle lines")
+
+}
+Rel_D(processAlias,visAlias,"Processed image","Detected lane lines")
+
+
+
+@enduml

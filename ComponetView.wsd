@@ -1,0 +1,32 @@
+@startuml C4 Componet
+title Lane Detection Conmponent view
+
+!define DEVICONS https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/devicons
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+!theme crt-green
+
+rectangle " Image pre-processing"{
+ Component(c2g,"Color To Gray Transformation")
+ Component(blur,"Bluring image","low pass")
+ Component(roi,"Select part of image for further processing","ROI")
+
+ Rel_D(c2g,blur,"Grayscaled image")
+ Rel_D(blur,roi,"Blured image with removed noise")
+
+}
+
+rectangle " Lane Detection"  {
+Component(lane,"Extract lines ","vehicle lane lines")
+Component(hough,"Hough transformation","Hough Algorithm")
+Component(edge,"Edge detection","Canny Algorithm")
+ 
+ Rel_U(edge,hough,"Detected edges")
+ Rel_U(hough,lane,"identified candidates for lane lines")
+
+}
+Rel_R(roi,edge,"Transfer selected image")
+
+rectangle "Lane Drawing"  {
+ Component(draw,"Draw detected lane lines","Apply on original camera feed")
+}
+Rel_R(lane,draw,"Coordinates of lines")
