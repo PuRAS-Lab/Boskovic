@@ -35,7 +35,7 @@ def callback(data, args):
     cv_image = cv2.cvtColor(cv_image, cv2.COLOR_BGR2GRAY )
     #Blurujemo sliku sa 3x3
     ksize = (3, 3)
-    cv_image = cv2.blur(cv_image,ksize )
+    cv_image = cv2.GaussianBlur(cv_image,ksize, 0)
     
     #Nakon blur-ovanja slike primjenjujemo Canny-jev algoritam
     edges = cv2.Canny(cv_image, tresh1, tresh2)
@@ -71,7 +71,7 @@ def listener():
                                                          roi_points['x3'], roi_points['y3'], roi_points['x4'], roi_points['y4'], \
                                                          roi_points['x5'], roi_points['y5'], roi_points['x6'], roi_points['y6']
     else:
-        x1, y1, x2, y2, x3, y3, x4, y4, x5, y5, x6, y6 = 0, 600, 0, 500, 300, 300, 450, 300, 700, 500, 700, 600
+        x1, y1, x2, y2, x3, y3, x4, y4, x5, y5, x6, y6 = 0, 600, 0, 520, 325, 325, 500, 325, 700, 520, 700, 600
     #rospy.loginfo("coordinates are %s, %s, %s, %s, %s, %s,%s, %s, %s, %s, %s, %s", x1,y1,x2,y2,x3,y3,x4,y4,x5,y5,x6,y6)
     
     # u RVIZ pogledajte koji je Source u Image prozoru
