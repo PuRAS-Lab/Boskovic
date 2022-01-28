@@ -19,7 +19,11 @@
   </group>
   <param name="publish_image_topic" value="lane_detection" />
   <param name="subscribe_image_topic" value="/carla/ego_vehicle/camera/rgb/front/image_color" />
-  
+  <param name="hough_rho" value="1" />
+  <param name="hough_threshold" value="100" />
+  <param name="hough_min_line_length" value="40" />
+  <param name="hough_max_line_gap" value="10" />
+
   <node pkg="Boskovic_LD" name="lanedetect" type="listener.py" output="screen"/>
 </launch>
 

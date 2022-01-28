@@ -12,6 +12,10 @@ image_pub = None
 # globals for parametrisation
 publish_topic = None
 subscrite_to_topic = None
+rho = None  # distance resolution in pixels of the Hough grid
+hough_threshold = None  # minimum number of votes (intersections in Hough grid cell)
+min_line_length = None  # minimum number of pixels making up a line
+max_line_gap = None  # maximum gap in pixels between connectable line segments
 
 # pogledajte ovaj primer:
 # http://wiki.ros.org/cv_bridge/Tutorials/ConvertingBetweenROSImagesAndOpenCVImagesPython
@@ -63,11 +67,18 @@ def extrapolation_lines(image, lines):
       
 
 def callback(data, args):
+
+    global rho
+    global hough_threshold
+    global min_line_length
+    global max_line_gap
+
     tresh1 = args[0]
     tresh2 = args[1]
     # rospy.loginfo(rospy.get_caller_id() + "I heard %s", data.data)
     bridge = CvBridge()
     cv_image = bridge.imgmsg_to_cv2(data, "bgr8")
+    orig_image = cv_image
     raw_image = bridge.imgmsg_to_cv2(data, "bgr8")
     #cv_image postaje grayscale slika koja koristi cv_image kao src za transformaciju
     cv_image = cv2.cvtColor(cv_image, cv2.COLOR_BGR2GRAY )
@@ -82,21 +93,25 @@ def callback(data, args):
     vertices = np.array([[args[2],args[3]],[args[4],args[5]],[args[6],args[7]],[args[8],args[9]],[args[10],args[11]],[args[12],args[13]]], np.int32)
     roi_img = roi(edges, [vertices])
 
-    rho = 1  # distance resolution in pixels of the Hough grid
+    # rho = 1  # distance resolution in pixels of the Hough grid
     theta = np.pi / 180  # angular resolution in radians of the Hough grid
-    threshold = 100  # minimum number of votes (intersections in Hough grid cell)
-    min_line_length = 40  # minimum number of pixels making up a line
-    max_line_gap = 10  # maximum gap in pixels between connectable line segments
+    # hough_threshold = 100  # minimum number of votes (intersections in Hough grid cell)
+    # in_line_length = 40  # minimum number of pixels making up a line
+    # max_line_gap = 10  # maximum gap in pixels between connectable line segments
     line_image = np.copy(raw_image) * 0  # creating a blank to draw lines on
 
     # Run Hough on edge detected image
     # Output "lines" is an array containing endpoints of detected line segments
-    lines = cv2.HoughLinesP(roi_img, rho, theta, threshold, np.array([]),
+    lines = cv2.HoughLinesP(roi_img, rho, theta, hough_threshold, np.array([]),
                     min_line_length, max_line_gap)
 
-    L = extrapolation_lines(raw_image, lines)
-    l_image = drawing_lines(raw_image, L)
-    final_image = cv2.addWeighted(raw_image, 0.8, l_image, 1, 1)
+    final_image = orig_image
+    try:
+        L = extrapolation_lines(raw_image, lines)
+        l_image = drawing_lines(raw_image, L)
+        final_image = cv2.addWeighted(raw_image, 0.8, l_image, 1, 1)
+    except:
+        pass
     # NOTE: dve linije ispod, ne zaboraviti promeniti ime varijable (roi_img, ...)
     try:
         image_pub.publish(bridge.cv2_to_imgmsg(final_image, "8UC3"))
@@ -111,6 +126,10 @@ def listener():
 
     global image_pub
     global subscrite_to_topic
+    global rho
+    global hough_threshold
+    global min_line_length
+    global max_line_gap
 
     # In ROS, nodes are uniquely named. If two nodes with the same
     # name are launched, the previous one is kicked off. The
@@ -132,6 +151,11 @@ def listener():
     
     publish_topic = rospy.get_param("publish_image_topic", "lane_detection")
     subscrite_to_topic = rospy.get_param("subscribe_image_topic", "/carla/ego_vehicle/camera/rgb/front/image_color")
+
+    rho = rospy.get_param("rho", 1)
+    hough_threshold = rospy.get_param("hough_threshold", 100)
+    min_line_length = rospy.get_param("min_line_length", 40)
+    max_line_gap = rospy.get_param("max_line_gap", 10)
 
     # publish the image    
     image_pub = rospy.Publisher(publish_topic, Image, queue_size=10)
